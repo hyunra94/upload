@@ -1,261 +1,566 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notion Calendar</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;800&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:#0a0e17; --card:#111827; --card-border:#1e293b;
-    --surface:#1a2332; --hover:#1e2d3d;
-    --text:#e2e8f0; --text-dim:#64748b; --text-muted:#475569;
-    --accent:#2D7FF9; --accent-glow:rgba(45,127,249,0.25);
-    --grid-line:rgba(255,255,255,0.04); --grid-dash:rgba(255,255,255,0.02);
-    --radius:14px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Noto Sans KR','Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
-  ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-track{background:var(--bg)} ::-webkit-scrollbar-thumb{background:var(--card-border);border-radius:4px}
-  .app{max-width:960px;margin:0 auto}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📁 파일 업로드</title>
+  <link rel="icon" href="https://hyunra94.github.io/assets/favicon.png" />
+  <meta property="og:title" content="파일 업로드" />
+  <meta property="og:image" content="https://hyunra94.github.io/assets/og-default.png" />
+  <meta property="og:url" content="https://hyunra94.github.io/upload/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f3ef;
+      --surface: #ffffff;
+      --border: #e8ddd4;
+      --pink: #f2a7b8;
+      --pink-light: #fce8ed;
+      --pink-deep: #e07f96;
+      --green: #a8c5a0;
+      --green-light: #e8f5e5;
+      --text: #3a2e2e;
+      --text-sub: #8a7070;
+      --shadow: 0 4px 20px rgba(180,130,130,0.12);
+      --radius: 16px;
+    }
 
-  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-  .header-left{display:flex;align-items:center;gap:10px}
-  .logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#18DCFF);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 20px var(--accent-glow);flex-shrink:0}
-  .header-title{font-size:20px;font-weight:800;letter-spacing:-0.03em;font-family:'Outfit','Noto Sans KR',sans-serif;background:linear-gradient(135deg,var(--accent),#18DCFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .header-sub{font-size:11px;color:var(--text-dim);margin-top:1px}
-  .header-right{display:flex;align-items:center;gap:6px}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .view-toggle{display:flex;background:var(--card);border-radius:9px;padding:3px;border:1px solid var(--card-border)}
-  .view-btn{border:none;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;background:transparent;color:var(--text-dim)}
-  .view-btn.active{background:linear-gradient(135deg,var(--accent),#1a6dd4);color:#fff;box-shadow:0 2px 12px var(--accent-glow)}
-  .nav-btn{width:32px;height:32px;border-radius:7px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;font-size:15px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:inherit}
-  .nav-btn:hover{background:var(--surface);color:var(--text)}
-  .today-btn{height:32px;padding:0 12px;border-radius:7px;border:1px solid var(--card-border);background:var(--card);cursor:pointer;font-size:11px;font-weight:700;color:var(--accent);font-family:inherit;transition:all .15s}
-  .today-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background-image:
+        radial-gradient(circle at 20% 20%, #fce8ed55 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, #e8f5e555 0%, transparent 50%);
+    }
 
-  .filters{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap}
-  .filter-btn{padding:4px 13px;border-radius:18px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;background:transparent;border:1px solid var(--card-border);color:var(--text-dim)}
-  .filter-btn.active-all{border-color:var(--accent);background:rgba(45,127,249,0.12);color:var(--accent)}
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1.5px solid var(--border);
+      width: 100%;
+      max-width: 520px;
+      overflow: hidden;
+    }
 
-  .cal-card{background:var(--card);border-radius:var(--radius);box-shadow:0 4px 30px rgba(0,0,0,0.3),0 0 60px var(--accent-glow);border:1px solid var(--card-border);overflow:hidden}
-  .day-headers{display:grid;border-bottom:1px solid var(--card-border)}
-  .day-headers.month{grid-template-columns:repeat(7,1fr)}
-  .day-headers.week{grid-template-columns:52px repeat(7,1fr)}
-  .day-header{padding:10px 6px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--text-muted)}
-  .day-header.sun{color:#FF6B6B} .day-header.sat{color:#74B9FF}
+    .card-header {
+      background: linear-gradient(135deg, var(--pink-light) 0%, var(--green-light) 100%);
+      padding: 24px 32px 16px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .card-header h1 { font-size: 20px; font-weight: 700; color: var(--text); }
+    .card-header p { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
 
-  .month-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-  .month-cell{min-height:92px;padding:6px;cursor:pointer;transition:background .12s;border-right:1px solid var(--grid-line);border-bottom:1px solid var(--grid-line)}
-  .month-cell:nth-child(7n){border-right:none}
-  .month-cell:hover{background:var(--hover)}
-  .month-cell.other{opacity:.25}
-  .month-cell.today-cell{background:rgba(45,127,249,0.06)}
+    .key-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-bottom: 1.5px solid var(--border);
+      background: #fdfbf9;
+    }
+    .key-bar label { font-size: 13px; font-weight: 500; color: var(--text-sub); white-space: nowrap; }
+    .key-bar input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .key-bar input:focus { border-color: var(--pink); }
 
-  .date-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;margin-bottom:3px;color:var(--text)}
-  .date-num.today{background:linear-gradient(135deg,var(--accent),#1a6dd4);color:#fff;font-weight:800;box-shadow:0 0 14px var(--accent-glow);animation:pulse 2.5s infinite}
-  .date-num.sun{color:#FF6B6B} .date-num.sat{color:#74B9FF}
+    .tabs { display: flex; border-bottom: 1.5px solid var(--border); }
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text-sub);
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      color: var(--pink-deep);
+      border-bottom-color: var(--pink-deep);
+      background: var(--pink-light);
+    }
 
-  .ev-pill{border-radius:5px;padding:2px 6px;margin-bottom:2px;font-size:10.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-left:3px solid;cursor:pointer;transition:transform .12s;display:block;text-decoration:none}
-  .ev-pill:hover{transform:translateX(2px)}
-  .ev-more{font-size:10px;color:var(--text-dim);font-weight:600;padding-left:5px}
+    .tab-panel { display: none; padding: 24px 32px; }
+    .tab-panel.active { display: flex; flex-direction: column; gap: 18px; }
 
-  .week-date-row{display:grid;grid-template-columns:52px repeat(7,1fr);border-bottom:1px solid var(--card-border)}
-  .week-date-cell{text-align:center;padding:6px 2px}
-  .week-date-num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;font-weight:800;font-size:16px;font-family:'Outfit',sans-serif;color:var(--text)}
-  .week-date-num.today{background:linear-gradient(135deg,var(--accent),#1a6dd4);color:#fff;box-shadow:0 3px 16px var(--accent-glow)}
-  .week-scroll{overflow-y:auto;max-height:480px;position:relative}
-  .week-grid{display:grid;grid-template-columns:52px 1fr;position:relative}
-  .time-label{height:60px;display:flex;align-items:flex-start;justify-content:center;padding-top:2px;font-size:10px;color:var(--text-muted);font-weight:600;font-family:'Outfit',sans-serif}
-  .events-area{position:relative}
-  .hour-line{height:60px;border-bottom:1px solid var(--grid-line)}
-  .hour-half{height:30px;border-bottom:1px dashed var(--grid-dash)}
-  .day-divider{position:absolute;top:0;bottom:0;border-left:1px solid var(--grid-line)}
-  .week-block{position:absolute;border-radius:7px;padding:3px 7px;color:#fff;font-size:10.5px;font-weight:600;overflow:hidden;cursor:pointer;z-index:2;transition:transform .12s;text-decoration:none;display:block}
-  .week-block:hover{transform:scale(1.03)}
-  .week-block-time{font-size:9.5px;opacity:.8}
-  .now-line{position:absolute;left:0;right:0;height:2px;z-index:10;pointer-events:none}
-  .now-dot{position:absolute;top:-4px;width:10px;height:10px;border-radius:50%}
+    .dropzone {
+      border: 2px dashed var(--pink);
+      border-radius: var(--radius);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+      position: relative;
+    }
+    .dropzone:hover, .dropzone.drag-over { background: var(--pink-light); border-color: var(--pink-deep); }
+    .dropzone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .dropzone-icon { font-size: 32px; margin-bottom: 8px; }
+    .dropzone p { font-size: 14px; font-weight: 500; color: var(--text); }
+    .dropzone span { font-size: 12px; color: var(--text-sub); margin-top: 4px; display: block; }
 
-  .detail-panel{margin-top:14px;background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 4px 20px rgba(0,0,0,0.3);border:1px solid var(--card-border);animation:fadeIn .25s ease}
-  .detail-title{font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-  .detail-title span{background:linear-gradient(135deg,var(--accent),#18DCFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .detail-count{background:rgba(45,127,249,0.15);color:var(--accent);padding:1px 9px;border-radius:10px;font-size:10px;-webkit-text-fill-color:var(--accent)}
-  .detail-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;margin-bottom:6px;transition:transform .12s;cursor:pointer;text-decoration:none;color:inherit}
-  .detail-item:hover{transform:translateX(4px)}
-  .detail-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-  .detail-info{flex:1;min-width:0}
-  .detail-name{font-weight:700;font-size:13px}
-  .detail-meta{font-size:11px;color:var(--text-dim);margin-top:1px}
-  .detail-arrow{color:var(--text-muted);font-size:14px;flex-shrink:0}
+    .file-list { display: flex; flex-direction: column; gap: 7px; }
+    .file-item {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--pink-light); border-radius: 9px; padding: 9px 12px; font-size: 13px;
+    }
+    .file-item .file-name {
+      flex: 1; color: var(--text); font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .file-item .file-size { color: var(--text-sub); font-size: 12px; flex-shrink: 0; }
+    .file-item .remove-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--pink-deep); font-size: 15px; padding: 0; flex-shrink: 0; line-height: 1;
+    }
 
-  .setup-overlay{display:flex;align-items:center;justify-content:center;min-height:80vh}
-  .setup-box{background:var(--card);border:1px solid var(--card-border);border-radius:20px;padding:36px 32px;max-width:440px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.4),0 0 80px var(--accent-glow)}
-  .setup-logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--accent),#18DCFF);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 6px 24px var(--accent-glow)}
-  .setup-title{text-align:center;font-size:22px;font-weight:800;font-family:'Outfit','Noto Sans KR',sans-serif;background:linear-gradient(135deg,var(--accent),#18DCFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
-  .setup-desc{text-align:center;font-size:13px;color:var(--text-dim);margin-bottom:24px;line-height:1.6}
-  .setup-label{font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-  .setup-input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--card-border);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:16px;transition:border-color .2s}
-  .setup-input::placeholder{color:var(--text-muted)}
-  .setup-input:focus{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
-  .setup-btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),#1a6dd4);color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px var(--accent-glow);transition:all .2s}
-  .setup-btn:hover{box-shadow:0 6px 24px rgba(45,127,249,0.4);transform:translateY(-1px)}
-  .setup-hint{margin-top:16px;padding:12px;border-radius:10px;background:var(--surface);border:1px solid var(--card-border);font-size:11px;color:var(--text-dim);line-height:1.7}
-  .setup-hint code{background:rgba(45,127,249,0.15);color:var(--accent);padding:1px 6px;border-radius:4px;font-size:11px}
-  .setup-step{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
-  .setup-step-num{width:20px;height:20px;border-radius:50%;flex-shrink:0;background:var(--accent);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+    .progress-wrap { display: none; }
+    .progress-wrap.show { display: block; }
+    .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--text-sub); margin-bottom: 6px;
+    }
+    .progress-bar-bg { background: var(--border); border-radius: 100px; height: 8px; overflow: hidden; }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, var(--pink), var(--green));
+      height: 100%; border-radius: 100px; width: 0%; transition: width 0.3s ease;
+    }
 
-  .loading-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--text-dim)}
-  .spinner{width:32px;height:32px;border:3px solid var(--card-border);border-top:3px solid var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:12px}
-  .error-msg{padding:16px;background:rgba(255,107,107,0.08);color:#FF6B6B;border:1px solid rgba(255,107,107,0.2);border-radius:10px;font-size:13px;text-align:center;margin:20px 0}
+    .upload-btn {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, var(--pink) 0%, var(--green) 100%);
+      border: none; border-radius: 12px; color: #fff;
+      font-size: 15px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    }
+    .upload-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .upload-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-  @keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 12px rgba(45,127,249,0.5)}50%{transform:scale(1.06);box-shadow:0 0 20px rgba(45,127,249,0.7)}}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes spin{to{transform:rotate(360deg)}}
-</style>
+    .result-box { display: none; flex-direction: column; gap: 8px; }
+    .result-box.show { display: flex; }
+
+    .error-box {
+      display: none; background: #fff0f0; border: 1.5px solid #f5b8b8;
+      border-radius: 10px; padding: 11px 14px; font-size: 13px; color: #c0392b;
+    }
+    .error-box.show { display: block; }
+
+    /* 파일 카드 */
+    .fcard {
+      background: var(--green-light); border: 1.5px solid var(--green);
+      border-radius: 10px; padding: 11px 14px;
+    }
+    .fcard-name {
+      font-size: 12px; color: var(--text-sub); margin-bottom: 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .fcard-meta { margin-left: auto; font-size: 11px; color: var(--text-sub); }
+    .fcard-row { display: flex; align-items: center; gap: 8px; }
+    .fcard-link {
+      flex: 1; font-size: 12px; color: var(--text); word-break: break-all;
+      background: #fff; border: 1px solid var(--border); border-radius: 7px;
+      padding: 6px 10px; font-family: monospace;
+    }
+    .copy-btn {
+      background: var(--pink); border: none; border-radius: 7px; color: #fff;
+      font-size: 12px; font-family: 'Noto Sans KR', sans-serif;
+      padding: 6px 12px; cursor: pointer; white-space: nowrap;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .copy-btn:hover { background: var(--pink-deep); }
+    .copy-btn.copied { background: var(--green); }
+
+    /* 목록 탭 */
+    .list-header { display: flex; align-items: center; justify-content: space-between; }
+    .list-header span { font-size: 13px; color: var(--text-sub); }
+    .refresh-btn {
+      background: none; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 6px 12px; font-size: 12px; font-family: 'Noto Sans KR', sans-serif;
+      color: var(--text-sub); cursor: pointer; transition: all 0.2s;
+    }
+    .refresh-btn:hover { border-color: var(--pink); color: var(--pink-deep); }
+
+    .list-loading, .list-empty {
+      text-align: center; padding: 32px; color: var(--text-sub); font-size: 13px;
+    }
+    .list-items { display: flex; flex-direction: column; gap: 8px; }
+
+    .date-divider {
+      font-size: 11px; font-weight: 700; color: var(--text-sub);
+      letter-spacing: 0.5px; padding: 4px 0 2px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .expire-note { text-align: center; font-size: 11px; color: var(--text-sub); }
+
+    .demo-badge {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #fff8e1;
+      border: 1.5px solid #ffe082;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #8a6a00;
+      font-weight: 500;
+    }
+    .demo-badge.show { display: flex; }
+  </style>
 </head>
 <body>
-<div class="app" id="app"></div>
-<script>
-const CONFIG={
-  WORKER_URL:'',
-  DATABASE_ID:'',
-  PROPS:{title:'제목',date:'날짜',category:'카테고리',duration:'소요시간'},
-  CATEGORIES:[
-    {id:'업무',emoji:'💼',color:'electric'},
-    {id:'개인',emoji:'🌟',color:'cyan'},
-    {id:'학습',emoji:'📚',color:'indigo'},
-    {id:'건강',emoji:'🏃',color:'neon'},
-    {id:'소셜',emoji:'🎉',color:'ice'},
-    {id:'미팅',emoji:'🤝',color:'mint'},
-  ],
-};
-const COLORS={
-  electric:{bg:'#2D7FF9',light:'rgba(45,127,249,0.12)',text:'#2D7FF9'},
-  cyan:{bg:'#18DCFF',light:'rgba(24,220,255,0.10)',text:'#18DCFF'},
-  indigo:{bg:'#6C5CE7',light:'rgba(108,92,231,0.12)',text:'#A29BFE'},
-  ice:{bg:'#74B9FF',light:'rgba(116,185,255,0.10)',text:'#74B9FF'},
-  neon:{bg:'#00D2D3',light:'rgba(0,210,211,0.10)',text:'#00D2D3'},
-  steel:{bg:'#576574',light:'rgba(87,101,116,0.12)',text:'#8395A7'},
-  mint:{bg:'#55EFC4',light:'rgba(85,239,196,0.08)',text:'#55EFC4'},
-};
-const DAYS=['일','월','화','수','목','금','토'];
-const MONTHS=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-const HOURS=Array.from({length:16},(_,i)=>i+6);
 
-let state={view:'month',currentDate:new Date(),events:[],selectedDate:null,filterCat:null,loading:false,error:null,configured:!!(CONFIG.WORKER_URL&&CONFIG.DATABASE_ID)};
+<div class="card">
 
-async function fetchEvents(start,end){
-  state.loading=true;state.error=null;render();
-  try{
-    const res=await fetch(CONFIG.WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({database_id:CONFIG.DATABASE_ID,filter:{and:[{property:CONFIG.PROPS.date,date:{on_or_after:start}},{property:CONFIG.PROPS.date,date:{on_or_before:end}}]},sorts:[{property:CONFIG.PROPS.date,direction:'ascending'}],page_size:100})});
-    if(!res.ok)throw new Error(`API 오류 (${res.status})`);
-    const data=await res.json();
-    state.events=(data.results||[]).map(p=>{const pr=p.properties;const dv=pr[CONFIG.PROPS.date]?.date?.start||'';const[d,t]=dv.includes('T')?dv.split('T'):[dv,''];
-      return{id:p.id,url:p.url||`https://notion.so/${p.id.replace(/-/g,'')}`,title:pr[CONFIG.PROPS.title]?.title?.[0]?.plain_text||'(제목 없음)',date:d,time:t?t.slice(0,5):'',category:pr[CONFIG.PROPS.category]?.select?.name||'',duration:pr[CONFIG.PROPS.duration]?.number||30};});
-    state.loading=false;render();
-  }catch(e){state.loading=false;state.error=e.message;render();}
-}
+  <div class="card-header">
+    <h1>📁 파일 업로드</h1>
+    <p>비밀키 입력 후 파일을 올리거나 목록을 확인하세요 · 7일 후 자동 삭제</p>
+  </div>
 
-function fmt(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
-function todayStr(){return fmt(new Date())}
-function getMonthDays(y,m){const sd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),prev=new Date(y,m,0).getDate();const days=[];for(let i=sd-1;i>=0;i--)days.push({date:new Date(y,m-1,prev-i),cur:false});for(let i=1;i<=dim;i++)days.push({date:new Date(y,m,i),cur:true});while(days.length<42){const n=days.length-sd-dim+1;days.push({date:new Date(y,m+1,n),cur:false})}return days}
-function getWeekDays(d){const s=new Date(d);s.setDate(d.getDate()-d.getDay());return Array.from({length:7},(_,i)=>{const w=new Date(s);w.setDate(s.getDate()+i);return w})}
-function eventsOn(ds){let evs=state.events.filter(e=>e.date===ds);if(state.filterCat)evs=evs.filter(e=>e.category===state.filterCat);return evs}
-function catInfo(n){return CONFIG.CATEGORIES.find(c=>c.id===n)||{emoji:'📌',color:'steel'}}
-function catColor(n){return COLORS[catInfo(n).color]||COLORS.steel}
-function fetchRange(){const d=state.currentDate;if(state.view==='month'){const y=d.getFullYear(),m=d.getMonth();fetchEvents(fmt(new Date(y,m-1,20)),fmt(new Date(y,m+1,10)))}else{const wk=getWeekDays(d);fetchEvents(fmt(wk[0]),fmt(wk[6]))}}
+  <div class="key-bar">
+    <label>🔑 비밀키</label>
+    <input type="password" id="secretKey" placeholder="비밀키를 입력하세요" />
+  </div>
 
-function render(){
-  const app=document.getElementById('app');
-  if(!state.configured){app.innerHTML=renderSetup();bindSetup();return}
-  app.innerHTML=renderHeader()+renderFilters()+renderCalendar()+renderDetail();
-  bindEvents();
-}
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="upload">⬆️ 업로드</button>
+    <button class="tab-btn" data-tab="list">📋 내 파일 목록</button>
+  </div>
 
-function renderSetup(){
-  return`<div class="setup-overlay"><div class="setup-box">
-    <div class="setup-logo">📅</div>
-    <div class="setup-title">Notion Calendar</div>
-    <div class="setup-desc">노션 데이터베이스와 연결하여<br>일정을 캘린더로 확인하세요</div>
-    <div class="setup-label">🔗 Cloudflare Worker URL</div>
-    <input class="setup-input" id="inp-worker" placeholder="https://notion-proxy.yourname.workers.dev" value="${CONFIG.WORKER_URL}">
-    <div class="setup-label">🗄️ Notion Database ID</div>
-    <input class="setup-input" id="inp-dbid" placeholder="32자리 데이터베이스 ID" value="${CONFIG.DATABASE_ID}">
-    <button class="setup-btn" id="btn-connect">🚀 연결하기</button>
-    <div class="setup-hint">
-      <div style="font-weight:700;margin-bottom:8px;color:var(--text);font-size:12px">📋 처음이라면?</div>
-      <div class="setup-step"><div class="setup-step-num">1</div><div>노션 DB에 <code>제목</code> <code>날짜</code> <code>카테고리</code> 속성 만들기</div></div>
-      <div class="setup-step"><div class="setup-step-num">2</div><div><a href="https://www.notion.so/my-integrations" target="_blank" style="color:var(--accent)">notion.so/my-integrations</a> 에서 API 키 발급</div></div>
-      <div class="setup-step"><div class="setup-step-num">3</div><div>Cloudflare Worker 만들고 <code>worker.js</code> 코드 붙여넣기</div></div>
-      <div class="setup-step"><div class="setup-step-num">4</div><div>위에 Worker URL과 Database ID 입력 후 연결!</div></div>
+  <!-- 업로드 탭 -->
+  <div class="tab-panel active" id="tab-upload">
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" multiple />
+      <div class="dropzone-icon">📂</div>
+      <p>파일을 드래그하거나 클릭해서 선택</p>
+      <span>최대 5GB · 여러 파일 동시 업로드 가능</span>
     </div>
-  </div></div>`}
-function bindSetup(){const b=document.getElementById('btn-connect'),w=document.getElementById('inp-worker'),d=document.getElementById('inp-dbid');if(!b)return;b.addEventListener('click',()=>{CONFIG.WORKER_URL=w.value.trim();CONFIG.DATABASE_ID=d.value.trim();if(CONFIG.WORKER_URL&&CONFIG.DATABASE_ID){state.configured=true;render();fetchRange()}})}
+    <div class="file-list" id="fileList"></div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label">
+        <span id="progressText">업로드 중...</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </div>
+    <div class="demo-badge" id="demoBadge">🧪 데모 모드 — 실제 업로드 없이 시뮬레이션만 실행됩니다</div>
+    <div class="error-box" id="errorBox"></div>
+    <div class="result-box" id="resultBox"></div>
+    <button class="upload-btn" id="uploadBtn" disabled>업로드</button>
+    <p class="expire-note">🗓 업로드된 파일은 7일 후 자동으로 삭제됩니다</p>
+  </div>
 
-function renderHeader(){
-  const d=state.currentDate;let title;
-  if(state.view==='month')title=`${d.getFullYear()}년 ${MONTHS[d.getMonth()]}`;
-  else{const wk=getWeekDays(d),s=wk[0],e=wk[6];title=s.getMonth()===e.getMonth()?`${s.getFullYear()}년 ${MONTHS[s.getMonth()]} ${s.getDate()}–${e.getDate()}일`:`${MONTHS[s.getMonth()]} ${s.getDate()}일 – ${MONTHS[e.getMonth()]} ${e.getDate()}일`}
-  const cm=state.events.filter(e=>{const ed=new Date(e.date);return ed.getMonth()===d.getMonth()&&ed.getFullYear()===d.getFullYear()}).length;
-  return`<div class="header"><div class="header-left"><div class="logo">📅</div><div><div class="header-title">${title}</div><div class="header-sub">이번 달 ${cm}개 · 전체 ${state.events.length}개</div></div></div><div class="header-right"><div class="view-toggle"><button class="view-btn ${state.view==='month'?'active':''}" data-view="month">📋 월간</button><button class="view-btn ${state.view==='week'?'active':''}" data-view="week">📊 주간</button></div><button class="nav-btn" data-nav="-1">‹</button><button class="today-btn" data-nav="today">오늘</button><button class="nav-btn" data-nav="1">›</button></div></div>`}
+  <!-- 목록 탭 -->
+  <div class="tab-panel" id="tab-list">
+    <div class="list-header">
+      <span id="listCount">R2에 저장된 파일 목록</span>
+      <button class="refresh-btn" id="refreshBtn">🔄 새로고침</button>
+    </div>
+    <div class="error-box" id="listErrorBox"></div>
+    <div id="listContent">
+      <div class="list-empty">비밀키를 입력하고 새로고침을 눌러주세요 🔑</div>
+    </div>
+    <p class="expire-note">🗓 업로드된 파일은 7일 후 자동으로 삭제됩니다</p>
+  </div>
 
-function renderFilters(){
-  let h=`<div class="filters"><button class="filter-btn ${!state.filterCat?'active-all':''}" data-cat="">전체</button>`;
-  for(const cat of CONFIG.CATEGORIES){const c=COLORS[cat.color],a=state.filterCat===cat.id;h+=`<button class="filter-btn" data-cat="${cat.id}" style="${a?`border-color:${c.bg}66;background:${c.light};color:${c.text}`:''}">${cat.emoji} ${cat.id}</button>`}
-  return h+`</div>`}
+</div>
 
-function renderCalendar(){
-  if(state.loading)return`<div class="cal-card"><div class="loading-overlay"><div class="spinner"></div><div>노션에서 일정 불러오는 중...</div></div></div>`;
-  if(state.error)return`<div class="error-msg">⚠️ ${state.error}<br><small>Worker URL과 Database ID를 확인해주세요.</small></div>`;
-  return state.view==='month'?renderMonth():renderWeek()}
+<script>
+  const WORKER_URL = 'https://notion-proxy.abyss9405.workers.dev';
+  const DEMO_KEY = 'test'; // 이 키 입력 시 데모 모드
 
-function renderMonth(){
-  const d=state.currentDate,days=getMonthDays(d.getFullYear(),d.getMonth()),td=todayStr();
-  let h=`<div class="cal-card"><div class="day-headers month">`;
-  for(let i=0;i<7;i++)h+=`<div class="day-header ${i===0?'sun':i===6?'sat':''}">${DAYS[i]}</div>`;
-  h+=`</div><div class="month-grid">`;
-  for(const day of days){const ds=fmt(day.date),isToday=ds===td,dow=day.date.getDay(),evs=eventsOn(ds);
-    h+=`<div class="month-cell ${day.cur?'':'other'} ${isToday?'today-cell':''}" data-date="${ds}"><div class="date-num ${isToday?'today':''} ${!isToday&&dow===0?'sun':''} ${!isToday&&dow===6?'sat':''}">${day.date.getDate()}</div>`;
-    for(let i=0;i<Math.min(evs.length,3);i++){const ev=evs[i],c=catColor(ev.category);h+=`<a class="ev-pill" href="${ev.url}" target="_blank" rel="noopener" style="background:${c.light};border-left-color:${c.bg};color:${c.text}" title="${ev.title} ${ev.time?'('+ev.time+')':''}">${ev.title}</a>`}
-    if(evs.length>3)h+=`<div class="ev-more">+${evs.length-3}개</div>`;h+=`</div>`}
-  return h+`</div></div>`}
+  const secretKeyInput = document.getElementById('secretKey');
+  const demoBadge = document.getElementById('demoBadge');
+  const getSecret = () => secretKeyInput.value.trim();
+  const isDemo = () => getSecret() === DEMO_KEY;
 
-function renderWeek(){
-  const wk=getWeekDays(state.currentDate),td=todayStr();
-  let h=`<div class="cal-card"><div class="day-headers week"><div class="day-header" style="color:var(--text-muted)">시간</div>`;
-  for(let i=0;i<7;i++)h+=`<div class="day-header ${i===0?'sun':i===6?'sat':''}">${DAYS[i]}</div>`;
-  h+=`</div><div class="week-date-row"><div></div>`;
-  for(const wd of wk){const ds=fmt(wd),isToday=ds===td;h+=`<div class="week-date-cell"><div class="week-date-num ${isToday?'today':''}">${wd.getDate()}</div></div>`}
-  h+=`</div><div class="week-scroll"><div class="week-grid"><div>`;
-  for(const hr of HOURS)h+=`<div class="time-label">${String(hr).padStart(2,'0')}:00</div>`;
-  h+=`</div><div class="events-area">`;
-  for(const hr of HOURS)h+=`<div class="hour-line"><div class="hour-half"></div></div>`;
-  for(let i=1;i<7;i++)h+=`<div class="day-divider" style="left:${i*(100/7)}%"></div>`;
-  for(let di=0;di<7;di++){const ds=fmt(wk[di]),evs=eventsOn(ds);for(const ev of evs){if(!ev.time)continue;const[hh,mm]=ev.time.split(':').map(Number);const top=(hh-6)*60+mm,height=Math.max(ev.duration||30,28);const c=catColor(ev.category),ci=catInfo(ev.category);
-    h+=`<a class="week-block" href="${ev.url}" target="_blank" rel="noopener" style="top:${top}px;left:calc(${di*(100/7)}% + 2px);width:calc(${100/7}% - 4px);height:${height}px;background:linear-gradient(135deg,${c.bg}cc,${c.bg}66);box-shadow:0 2px 12px ${c.bg}33"><div class="week-block-time">${ev.time}</div><div>${ci.emoji} ${ev.title}</div></a>`}}
-  const now=new Date(),tidx=wk.findIndex(w=>fmt(w)===td);
-  if(tidx>=0&&now.getHours()>=6&&now.getHours()<22){const top=(now.getHours()-6)*60+now.getMinutes();h+=`<div class="now-line" style="top:${top}px;background:var(--accent);box-shadow:0 0 12px rgba(45,127,249,0.6)"><div class="now-dot" style="left:calc(${tidx*(100/7)}%);background:var(--accent);box-shadow:0 0 8px var(--accent)"></div></div>`}
-  return h+`</div></div></div></div>`}
+  secretKeyInput.addEventListener('input', () => {
+    demoBadge.classList.toggle('show', isDemo());
+  });
 
-function renderDetail(){
-  if(!state.selectedDate)return'';const evs=eventsOn(state.selectedDate);if(!evs.length)return'';
-  const[y,m,dd]=state.selectedDate.split('-').map(Number);
-  let h=`<div class="detail-panel"><div class="detail-title"><span>${m}월 ${dd}일 일정</span><div class="detail-count">${evs.length}개</div></div>`;
-  for(const ev of evs){const c=catColor(ev.category),ci=catInfo(ev.category);
-    h+=`<a class="detail-item" href="${ev.url}" target="_blank" rel="noopener" style="background:${c.light};border:1px solid ${c.bg}22"><div class="detail-icon" style="background:linear-gradient(135deg,${c.bg}cc,${c.bg}66);box-shadow:0 2px 10px ${c.bg}33">${ci.emoji}</div><div class="detail-info"><div class="detail-name" style="color:${c.text}">${ev.title}</div><div class="detail-meta">${ev.time||'종일'} · ${ev.duration}분 · ${ev.category||'기타'}</div></div><div class="detail-arrow">→</div></a>`}
-  return h+`</div>`}
+  // ── 탭 전환
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'list') loadList();
+    });
+  });
 
-function bindEvents(){
-  document.querySelectorAll('.view-btn').forEach(b=>b.addEventListener('click',()=>{state.view=b.dataset.view;state.selectedDate=null;render();fetchRange()}));
-  document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{const v=b.dataset.nav;if(v==='today')state.currentDate=new Date();else{const dir=parseInt(v),d=new Date(state.currentDate);if(state.view==='month')d.setMonth(d.getMonth()+dir);else d.setDate(d.getDate()+dir*7);state.currentDate=d}state.selectedDate=null;render();fetchRange()}));
-  document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{const c=b.dataset.cat;state.filterCat=c===state.filterCat||c===''?null:c;state.selectedDate=null;render()}));
-  document.querySelectorAll('.month-cell').forEach(cell=>cell.addEventListener('click',(e)=>{if(e.target.closest('.ev-pill'))return;const ds=cell.dataset.date;state.selectedDate=state.selectedDate===ds?null:ds;render()}))}
+  // ── 공통 유틸
+  function formatSize(bytes) {
+    if (!bytes) return '';
+    if (bytes < 1024) return bytes + 'B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+    if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+    return (bytes / 1024 / 1024 / 1024).toFixed(2) + 'GB';
+  }
 
-render();
-if(state.configured)fetchRange();
+  function makeCopyBtn(url) {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '복사';
+    btn.addEventListener('click', () => {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.textContent = '✅ 복사됨';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+    return btn;
+  }
+
+  function makeFcard({ name, url, size }) {
+    const card = document.createElement('div');
+    card.className = 'fcard';
+    const nameRow = document.createElement('div');
+    nameRow.className = 'fcard-name';
+    nameRow.innerHTML = `<span>📄 ${name}</span>`;
+    if (size) {
+      const meta = document.createElement('span');
+      meta.className = 'fcard-meta';
+      meta.textContent = formatSize(size);
+      nameRow.appendChild(meta);
+    }
+    const row = document.createElement('div');
+    row.className = 'fcard-row';
+    const linkEl = document.createElement('div');
+    linkEl.className = 'fcard-link';
+    linkEl.textContent = url;
+    row.appendChild(linkEl);
+    row.appendChild(makeCopyBtn(url));
+    card.appendChild(nameRow);
+    card.appendChild(row);
+    return card;
+  }
+
+  // ── 업로드 탭
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const fileListEl = document.getElementById('fileList');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const progressWrap = document.getElementById('progressWrap');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const progressPct = document.getElementById('progressPct');
+  const resultBox = document.getElementById('resultBox');
+  const errorBox = document.getElementById('errorBox');
+
+  let selectedFiles = [];
+
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('drag-over'); addFiles([...e.dataTransfer.files]); });
+  fileInput.addEventListener('change', () => { addFiles([...fileInput.files]); fileInput.value = ''; });
+
+  function addFiles(files) {
+    files.forEach(f => { if (!selectedFiles.find(x => x.name === f.name && x.size === f.size)) selectedFiles.push(f); });
+    renderFileList();
+  }
+
+  function renderFileList() {
+    fileListEl.innerHTML = '';
+    selectedFiles.forEach((f, i) => {
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `<span>📄</span><span class="file-name">${f.name}</span><span class="file-size">${formatSize(f.size)}</span><button class="remove-btn" data-i="${i}">✕</button>`;
+      fileListEl.appendChild(item);
+    });
+    fileListEl.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', () => { selectedFiles.splice(Number(btn.dataset.i), 1); renderFileList(); });
+    });
+    uploadBtn.disabled = selectedFiles.length === 0;
+  }
+
+  function showError(msg) { errorBox.textContent = '⚠️ ' + msg; errorBox.classList.add('show'); }
+  function hideError() { errorBox.classList.remove('show'); }
+  function setProgress(pct) { progressFill.style.width = pct + '%'; progressPct.textContent = pct + '%'; }
+
+  uploadBtn.addEventListener('click', async () => {
+    const secret = getSecret();
+    if (!secret) { showError('비밀키를 입력해주세요.'); return; }
+    if (!selectedFiles.length) { showError('파일을 선택해주세요.'); return; }
+
+    hideError();
+    resultBox.innerHTML = '';
+    resultBox.classList.remove('show');
+    progressWrap.classList.add('show');
+    uploadBtn.disabled = true;
+
+    const results = [];
+
+    // ── 데모 모드
+    if (isDemo()) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        progressText.textContent = `(${i + 1}/${selectedFiles.length}) ${file.name} 업로드 중...`;
+        setProgress(0);
+        await new Promise(r => setTimeout(r, 300));
+        for (let p = 10; p <= 100; p += 10) {
+          setProgress(p);
+          await new Promise(r => setTimeout(r, 120));
+        }
+        results.push({
+          name: file.name,
+          url: `https://example.r2.dev/uploads/2026-05-17/${encodeURIComponent(file.name)}`,
+          size: file.size,
+        });
+      }
+      progressText.textContent = '✅ 모든 파일 업로드 완료! (데모)';
+      setProgress(100);
+      results.forEach(r => resultBox.appendChild(makeFcard(r)));
+      resultBox.classList.add('show');
+      selectedFiles = [];
+      renderFileList();
+      setTimeout(() => progressWrap.classList.remove('show'), 1500);
+      return;
+    }
+
+    // ── 실제 업로드
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      progressText.textContent = `(${i + 1}/${selectedFiles.length}) ${file.name} 업로드 중...`;
+      setProgress(0);
+      try {
+        const signRes = await fetch(`${WORKER_URL}/upload-sign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Secret-Key': secret },
+          body: JSON.stringify({ filename: file.name, contentType: file.type || 'application/octet-stream', size: file.size }),
+        });
+        if (!signRes.ok) {
+          const err = await signRes.json().catch(() => ({ error: '비밀키가 올바르지 않거나 서버 오류입니다.' }));
+          throw new Error(err.error || '서명 실패');
+        }
+        const { uploadUrl, downloadUrl } = await signRes.json();
+        await uploadWithProgress(file, uploadUrl, pct => setProgress(pct));
+        results.push({ name: file.name, url: downloadUrl, size: file.size });
+        setProgress(100);
+      } catch (e) {
+        showError(`${file.name}: ${e.message}`);
+        progressWrap.classList.remove('show');
+        uploadBtn.disabled = false;
+        return;
+      }
+    }
+
+    progressText.textContent = '✅ 모든 파일 업로드 완료!';
+    setProgress(100);
+    results.forEach(r => resultBox.appendChild(makeFcard(r)));
+    resultBox.classList.add('show');
+    selectedFiles = [];
+    renderFileList();
+    setTimeout(() => progressWrap.classList.remove('show'), 1500);
+  });
+
+  function uploadWithProgress(file, url, onProgress) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url);
+      xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+      xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); });
+      xhr.addEventListener('load', () => { if (xhr.status >= 200 && xhr.status < 300) resolve(); else reject(new Error('HTTP ' + xhr.status)); });
+      xhr.addEventListener('error', () => reject(new Error('네트워크 오류')));
+      xhr.send(file);
+    });
+  }
+
+  // ── 파일 목록 탭
+  const listContent = document.getElementById('listContent');
+  const listCount = document.getElementById('listCount');
+  const listErrorBox = document.getElementById('listErrorBox');
+
+  document.getElementById('refreshBtn').addEventListener('click', loadList);
+
+  async function loadList() {
+    const secret = getSecret();
+    if (!secret) {
+      listContent.innerHTML = '<div class="list-empty">비밀키를 입력하고 새로고침을 눌러주세요 🔑</div>';
+      return;
+    }
+    listErrorBox.classList.remove('show');
+    listContent.innerHTML = '<div class="list-loading">⏳ 불러오는 중...</div>';
+    listCount.textContent = '불러오는 중...';
+
+    try {
+      const res = await fetch(`${WORKER_URL}/upload-list`, {
+        headers: { 'X-Secret-Key': secret }
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: '오류가 발생했습니다.' }));
+        throw new Error(err.error || '목록 불러오기 실패');
+      }
+      const { files } = await res.json();
+
+      if (!files || files.length === 0) {
+        listContent.innerHTML = '<div class="list-empty">업로드된 파일이 없습니다 📭</div>';
+        listCount.textContent = '파일 없음';
+        return;
+      }
+
+      listCount.textContent = `총 ${files.length}개 파일`;
+
+      // 날짜별 그룹핑 (key: uploads/YYYY-MM-DD/파일명)
+      const grouped = {};
+      files.forEach(f => {
+        const parts = f.key.split('/');
+        const date = parts[1] || '날짜 없음';
+        if (!grouped[date]) grouped[date] = [];
+        grouped[date].push(f);
+      });
+
+      const container = document.createElement('div');
+      container.className = 'list-items';
+
+      Object.keys(grouped).sort((a, b) => b.localeCompare(a)).forEach(date => {
+        const divider = document.createElement('div');
+        divider.className = 'date-divider';
+        divider.textContent = date;
+        container.appendChild(divider);
+        grouped[date].forEach(f => {
+          const filename = decodeURIComponent(f.key.split('/').pop());
+          container.appendChild(makeFcard({ name: filename, url: f.url, size: f.size }));
+        });
+      });
+
+      listContent.innerHTML = '';
+      listContent.appendChild(container);
+    } catch (e) {
+      listErrorBox.textContent = '⚠️ ' + e.message;
+      listErrorBox.classList.add('show');
+      listContent.innerHTML = '';
+    }
+  }
 </script>
+
 </body>
 </html>
